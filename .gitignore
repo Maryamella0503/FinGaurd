@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 .env
+finguard.db
 .DS_Store
 
 data/raw/*
