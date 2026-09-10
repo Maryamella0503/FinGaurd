@@ -1,0 +1,31 @@
+{
+    "model_name": "FinGuard XGBoost Fraud Detector",
+    "model_version": "1.0.0",
+    "model_type": "XGBClassifier",
+    "features": [
+        "step",
+        "amount",
+        "oldbalanceOrg",
+        "oldbalanceDest",
+        "orig_balance_zero",
+        "hour",
+        "day",
+        "type_CASH_IN",
+        "type_CASH_OUT",
+        "type_DEBIT",
+        "type_PAYMENT",
+        "type_TRANSFER"
+    ],
+    "target": "isFraud",
+    "training_split": {
+        "strategy": "temporal",
+        "train_steps": "1-594",
+        "test_steps": "595-743"
+    },
+    "evaluation": {
+        "pr_auc": 0.9562797020352547,
+        "roc_auc": 0.9991252896056583
+    },
+    "default_policy_threshold": 0.85,
+    "threshold_note": "Threshold is configurable and should be selected according to operational risk policy."
+}
