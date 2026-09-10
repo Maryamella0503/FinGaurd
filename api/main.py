@@ -11,6 +11,12 @@ from src.data.prediction_repository import (
     get_recent_predictions,
 )
 
+from src.data.prediction_repository import (
+    log_prediction,
+    get_recent_predictions,
+    get_prediction_metrics,
+)
+
 app = FastAPI(
     title="FinGuard API",
     description="Machine-learning fraud risk scoring API for financial transactions.",
@@ -20,6 +26,11 @@ app = FastAPI(
 predictor = FinGuardPredictor()
 create_tables()
 
+class MonitoringResponse(BaseModel):
+    total_predictions: int
+    review_count: int
+    review_rate: float
+    average_fraud_probability: float
 
 class TransactionRequest(BaseModel):
     step: int = Field(gt=0)
@@ -52,7 +63,6 @@ class PredictionHistoryResponse(BaseModel):
     count: int
     predictions: list[PredictionHistoryItem]
 
-
 @app.get("/")
 def root():
     return {
@@ -69,6 +79,9 @@ def health():
         "model_loaded": True,
     }
 
+@app.get("/monitoring", response_model=MonitoringResponse)
+def monitoring():
+    return get_prediction_metrics()
 
 @app.get("/predictions", response_model=PredictionHistoryResponse)
 def predictions(limit: int = 20):

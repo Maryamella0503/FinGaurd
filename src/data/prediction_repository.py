@@ -1,7 +1,6 @@
-from src.data.database import (
-    SessionLocal,
-    PredictionLog,
-)
+from sqlalchemy import func
+
+from src.data.database import SessionLocal, PredictionLog
 
 
 def log_prediction(
@@ -75,6 +74,43 @@ def get_recent_predictions(
             }
             for record in records
         ]
+
+    finally:
+        db.close()
+
+def get_prediction_metrics() -> dict:
+    db = SessionLocal()
+
+    try:
+        total_predictions = db.query(func.count(PredictionLog.id)).scalar() or 0
+
+        review_count = (
+            db.query(func.count(PredictionLog.id))
+            .filter(PredictionLog.decision == "REVIEW")
+            .scalar()
+            or 0
+        )
+
+        average_fraud_probability = (
+            db.query(func.avg(PredictionLog.fraud_probability)).scalar()
+            or 0.0
+        )
+
+        review_rate = (
+            review_count / total_predictions
+            if total_predictions > 0
+            else 0.0
+        )
+
+        return {
+            "total_predictions": total_predictions,
+            "review_count": review_count,
+            "review_rate": round(review_rate, 4),
+            "average_fraud_probability": round(
+                float(average_fraud_probability),
+                6,
+            ),
+        }
 
     finally:
         db.close()

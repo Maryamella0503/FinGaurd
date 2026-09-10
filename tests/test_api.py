@@ -123,3 +123,20 @@ def test_predictions_invalid_limit_too_high():
     response = client.get("/predictions?limit=101")
 
     assert response.status_code == 400
+
+def test_monitoring_endpoint():
+    response = client.get("/monitoring")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "total_predictions" in data
+    assert "review_count" in data
+    assert "review_rate" in data
+    assert "average_fraud_probability" in data
+
+    assert data["total_predictions"] >= 0
+    assert data["review_count"] >= 0
+    assert 0 <= data["review_rate"] <= 1
+    assert 0 <= data["average_fraud_probability"] <= 1
