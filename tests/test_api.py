@@ -1,7 +1,9 @@
+import os
+
+os.environ["DATABASE_URL"] = "sqlite:///./test_finguard.db"
+
 from fastapi.testclient import TestClient
-
 from api.main import app
-
 
 client = TestClient(app)
 
@@ -10,7 +12,6 @@ def test_health_endpoint():
     response = client.get("/health")
 
     assert response.status_code == 200
-
     assert response.json() == {
         "status": "healthy",
         "model_loaded": True,
@@ -34,6 +35,10 @@ def test_predict_endpoint():
     assert response.status_code == 200
 
     data = response.json()
+
+    assert "prediction_id" in data
+    assert isinstance(data["prediction_id"], int)
+    assert data["prediction_id"] > 0
 
     assert "fraud_probability" in data
     assert "risk_level" in data
@@ -84,3 +89,37 @@ def test_negative_amount_rejected():
     )
 
     assert response.status_code == 422
+
+
+def test_predictions_endpoint():
+    response = client.get("/predictions")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "count" in data
+    assert "predictions" in data
+    assert isinstance(data["predictions"], list)
+
+
+def test_predictions_limit():
+    response = client.get("/predictions?limit=5")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["count"] <= 5
+
+
+def test_predictions_invalid_limit_too_low():
+    response = client.get("/predictions?limit=0")
+
+    assert response.status_code == 400
+
+
+def test_predictions_invalid_limit_too_high():
+    response = client.get("/predictions?limit=101")
+
+    assert response.status_code == 400
