@@ -30,47 +30,13 @@ FinGuard therefore focuses on:
 
 ## System Architecture
 
-```text
-                        ┌──────────────────────┐
-                        │ Financial Transaction│
-                        └──────────┬───────────┘
-                                   │
-                                   ▼
-                        ┌──────────────────────┐
-                        │       FastAPI        │
-                        │ Validation / REST API│
-                        └──────────┬───────────┘
-                                   │
-                                   ▼
-                        ┌──────────────────────┐
-                        │ Feature Engineering  │
-                        │ Reproducible Pipeline│
-                        └──────────┬───────────┘
-                                   │
-                                   ▼
-                        ┌──────────────────────┐
-                        │       XGBoost        │
-                        │ Fraud Probability    │
-                        └──────────┬───────────┘
-                                   │
-                                   ▼
-                        ┌──────────────────────┐
-                        │   Decision Policy    │
-                        │ Configurable Threshold│
-                        └──────────┬───────────┘
-                                   │
-                      ┌────────────┴────────────┐
-                      ▼                         ▼
-             ┌────────────────┐       ┌─────────────────┐
-             │ ALLOW / REVIEW │       │   PostgreSQL    │
-             │ Risk Decision  │       │ Prediction Logs │
-             └────────────────┘       └────────┬────────┘
-                                              │
-                                              ▼
-                                     ┌─────────────────┐
-                                     │   Monitoring    │
-                                     │ Operational KPIs│
-                                     └─────────────────┘
+FinGuard provides an end-to-end fraud risk scoring pipeline, from validated transaction input through ML inference, decision policy, persistent audit logging and operational monitoring.
+
+<p align="center">
+  <img src="docs/images/System_Architecture.png"
+       alt="FinGuard System Architecture"
+       width="100%">
+</p>
 ```
 
 The API and PostgreSQL database are containerised using Docker Compose.
@@ -267,6 +233,40 @@ Interactive API documentation is available through Swagger UI at:
 ```text
 http://localhost:8000/docs
 ```
+
+---
+
+## FinGuard in Action
+
+### Real-Time Fraud Risk Scoring
+
+Transactions are validated through the REST API and scored by the deployed XGBoost model. Each prediction returns a fraud probability, risk classification, operational decision and persistent prediction ID.
+
+<p align="center">
+  <img src="docs/images/swagger-predict.png"
+       alt="FinGuard fraud prediction API"
+       width="90%">
+</p>
+
+### Operational Monitoring
+
+Persisted predictions are aggregated into lightweight operational metrics for monitoring model usage and review workload.
+
+<p align="center">
+  <img src="docs/images/swagger-monitoring.png"
+       alt="FinGuard monitoring API"
+       width="90%">
+</p>
+
+### Containerised Deployment
+
+FinGuard's FastAPI service and PostgreSQL database run as separate Docker containers orchestrated with Docker Compose.
+
+<p align="center">
+  <img src="docs/images/docker-compose.png"
+       alt="FinGuard Docker Compose deployment"
+       width="90%">
+</p>
 
 ---
 
@@ -477,16 +477,34 @@ Potential extensions include:
 
 ---
 
-## System Architecture
+## What This Project Demonstrates
 
-FinGuard provides an end-to-end fraud risk scoring pipeline, from validated transaction input through ML inference, decision policy, persistent audit logging and operational monitoring.
+FinGuard demonstrates the complete path from:
 
-<p align="center">
-  <img src="docs/images/System_Architecture.png"
-       alt="FinGuard System Architecture"
-       width="100%">
-</p>
-
-The API and PostgreSQL database are containerised using Docker Compose.
+```text
+raw transactions
+        ↓
+data exploration
+        ↓
+feature engineering
+        ↓
+imbalanced ML modelling
+        ↓
+artifact investigation
+        ↓
+model evaluation
+        ↓
+business threshold selection
+        ↓
+reproducible inference
+        ↓
+REST API
+        ↓
+PostgreSQL audit trail
+        ↓
+Docker deployment
+        ↓
+operational monitoring
+```
 
 The central goal is not simply to maximise a fraud metric, but to build a fraud-scoring system whose modelling assumptions, operational decisions and limitations can be explained.
